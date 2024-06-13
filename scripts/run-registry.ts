@@ -1,4 +1,4 @@
-import { execa, execaCommand } from 'execa';
+import { execaCommand } from 'execa';
 import { remove, pathExists, readJSON } from 'fs-extra';
 import chalk from 'chalk';
 import path from 'path';
@@ -123,7 +123,7 @@ const addUser = (url: string) =>
 
     try {
       await execaCommand(
-        `npx npm-cli-adduser -r ${url} -a -u user -p password -e user@example.com -t legacy`
+        `npx npm-cli-adduser -r ${url} -a -u foo -p s3cret -e user@example.com -t legacy`
       );
       res();
     } catch (e) {
@@ -169,15 +169,16 @@ const run = async () => {
     await publish(packages, verdaccioUrl);
   }
 
-  verdaccioServer.unref();
-
-  if (!program.open) {
-    verdaccioServer.close(() => {
-      process.exit(0);
-    });
-  } else {
-    process.exit(0);
-  }
+  return new Promise<void>((res) => {
+    if (!program.open) {
+      verdaccioServer.closeAllConnections();
+      verdaccioServer.close(() => {
+        res();
+      });
+    } else {
+      res();
+    }
+  });
 };
 
 run().catch((e) => {

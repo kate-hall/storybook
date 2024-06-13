@@ -14,6 +14,7 @@ uplinks:
   npmjs:
     url: https://registry.npmjs.org/
     cache: true
+    strict_ssl: false
 
 packages:
   # storybook's 'legacy' packages
@@ -134,7 +135,7 @@ packages:
 
   '**':
     access: $all
-    publish: $all
+    publish: $authenticated
     proxy: npmjs
 
 logs:

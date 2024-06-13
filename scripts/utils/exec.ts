@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop, no-restricted-syntax */
 import type { ExecaChildProcess, Options } from 'execa';
 import chalk from 'chalk';
-import { execa } from 'execa';
+import { execa, execaNode } from 'execa';
 
 const logger = console;
 
@@ -52,7 +52,15 @@ export const exec = async (
           logger.debug(`> ${subcommand}`);
         }
         const [file, ...args] = subcommand.split(' ');
-        const currentChild = execa(file, args, { ...defaultOptions, ...options });
+
+        let currentChild: ExecaChildProcess;
+
+        if (file === 'node') {
+          const [path, ...pathArgs] = args;
+          currentChild = execaNode(path, pathArgs, { ...defaultOptions, ...options });
+        } else {
+          currentChild = execa(file, args, { ...defaultOptions, ...options });
+        }
 
         if (debug) {
           currentChild.stdout?.pipe(process.stdout);
